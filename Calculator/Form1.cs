@@ -253,6 +253,8 @@ namespace Calculator
 
         private void buttonImport_Click(object sender, EventArgs e)
         {
+            int hataSayisi = 0;
+
             OpenFileDialog openFileDialog = new OpenFileDialog {Filter = "Metin Dosyası (*.txt)|*.txt" };
             if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
@@ -265,6 +267,8 @@ namespace Calculator
             {
                 string[] values = readAllLines[i].Split('|');
                 dataGridViewTarihce.Rows.Add(values[0], values[1], values[2], values[3]);
+
+                hataSayisi++;
 
                 double sayi1, sayi2 = 0, sonuc=0;
 
@@ -334,7 +338,13 @@ namespace Calculator
                     }
                 }
 
+                hataSayisi--;
+
             }
+
+            toolStripStatusLabel1.Text = hataSayisi == 0
+                ? "İşlem tarihçesinde hata bulunmadı"
+                : $"İşlem tarihçesinde {hataSayisi} adet hata bulundu.";
         }
 
         private void button1_Click(object sender, EventArgs e)
