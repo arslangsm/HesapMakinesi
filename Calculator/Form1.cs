@@ -98,6 +98,9 @@ namespace Calculator
                     case "*":
                         sonuc = sayi1 * sayi2;
                         break;
+                    case "Pow":
+                        sonuc = Math.Pow(sayi1.Value, sayi2.Value);
+                        break;
                 }
 
                 textBox1.Text = sonuc?.ToString("F3");
