@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -156,6 +157,9 @@ namespace Calculator
                 sayi1 = null;
                 sayi2 = null;
                 sonuc = null;
+
+                dataGridViewTarihce.Rows.Add(label1.Text, labelIslem.Text, label2.Text, labelSonuc.Text.Substring(2));
+
             }
             catch (Exception exception)
             {
@@ -226,6 +230,113 @@ namespace Calculator
                         labelSonuc.Text = String.Empty;
         }
 
+        private void buttonExport_Click(object sender, EventArgs e)
+        {
+            string tarihce = "Sayı 1|İşlem|Sayı 2|Sonuç\n";
+
+            foreach (DataGridViewRow row in dataGridViewTarihce.Rows)
+            {
+                foreach (DataGridViewCell rowCell in row.Cells)
+                {
+                    tarihce += $"{rowCell.Value}|";
+                }
+
+                tarihce = tarihce.Remove(tarihce.Length - 1) + "\n";
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog {Filter = "Metin Dosyası (*.txt)|*.txt"};
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(dialog.FileName, tarihce);
+            }
+        }
+
+        private void buttonImport_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog {Filter = "Metin Dosyası (*.txt)|*.txt" };
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            string[] readAllLines = File.ReadAllLines(openFileDialog.FileName);
+
+            for (var i = 1; i < readAllLines.Length; i++)
+            {
+                string[] values = readAllLines[i].Split('|');
+                dataGridViewTarihce.Rows.Add(values[0], values[1], values[2], values[3]);
+
+                double sayi1, sayi2 = 0, sonuc=0;
+
+                if (!Double.TryParse(values[0], out sayi1))
+                {
+                    dataGridViewTarihce.Rows[i - 1].DefaultCellStyle.BackColor = Color.Red;
+                    continue;
+                }
+                
+                if (values[1].Length == 0)
+                {
+                    dataGridViewTarihce.Rows[i - 1].DefaultCellStyle.BackColor = Color.Red;
+                    continue;
+                }
+
+                string[] processes = {"+", "-", "*", "/", "Pow", "Mod", "√"};
+                if (!processes.Contains(values[1]))
+                {
+                    dataGridViewTarihce.Rows[i - 1].DefaultCellStyle.BackColor = Color.Red;
+                    continue;
+                }
+
+                
+                if (values[0] != "√" && !Double.TryParse(values[2], out sayi2))
+                {
+                    dataGridViewTarihce.Rows[i - 1].DefaultCellStyle.BackColor = Color.Red;
+                    continue;
+                }
+
+                if (values[1] == "√")
+                {
+                    sonuc = Math.Sqrt(sayi1);
+                    if (values[3] != sonuc.ToString("F3"))
+                    {
+                        dataGridViewTarihce.Rows[i - 1].DefaultCellStyle.BackColor = Color.Red;
+                        continue;
+                    }
+                }
+                else
+                {
+                    switch (values[1])
+                    {
+                        case "+":
+                            sonuc = sayi1 + sayi2;
+                            break;
+                        case "-":
+                            sonuc = sayi1 - sayi2;
+                            break;
+                        case "/":
+                            sonuc = sayi1 / sayi2;
+                            break;
+                        case "*":
+                            sonuc = sayi1 * sayi2;
+                            break;
+                        case "Pow":
+                            sonuc = Math.Pow(sayi1, sayi2);
+                            break;
+                        case "Mod":
+                            sonuc = sayi1 % sayi2;
+                            break;
+                    }
+
+                    if (values[3] != sonuc.ToString("F3"))
+                    {
+                        dataGridViewTarihce.Rows[i - 1].DefaultCellStyle.BackColor = Color.Red;
+                        continue;
+                    }
+                }
+
+            }
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
@@ -240,6 +351,8 @@ namespace Calculator
                     label2.Text =
                         labelSonuc.Text =
                         labelIslem.Text = String.Empty;
+
+                dataGridViewTarihce.Rows.Clear();
             }
             else
             {
