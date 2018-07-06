@@ -13,7 +13,6 @@ namespace Calculator
     public partial class Form1 : Form
     {
         private double? sayi1, sayi2, sonuc;
-        private string islem = String.Empty;
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -101,7 +100,13 @@ namespace Calculator
                         break;
                 }
 
-                MessageBox.Show($"İşlem Sonucu: {sonuc.Value.ToString("F2")}", $"{textBox1.Text} {textBoxIslem.Text} {textBox2.Text} Sonucu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                textBox1.Text = sonuc?.ToString("F3");
+                textBoxIslem.Text = String.Empty;
+                textBox2.Text = String.Empty;
+
+                sayi1 = null;
+                sayi2 = null;
+                sonuc = null;
             }
             catch (Exception exception)
             {
@@ -141,6 +146,27 @@ namespace Calculator
                 textBox2.Text = cevrilecekSayi;
             }
 
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            string cevrilecekSayi;
+
+            cevrilecekSayi = textBoxIslem.Text.Length == 0 ? textBox1.Text : textBox2.Text;
+
+            if (!cevrilecekSayi.Contains(","))
+            {
+                cevrilecekSayi += ",";
+            }
+
+            if (textBoxIslem.Text.Length == 0)
+            {
+                textBox1.Text = cevrilecekSayi;
+            }
+            else
+            {
+                textBox2.Text = cevrilecekSayi;
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
